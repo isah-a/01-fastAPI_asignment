@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from uuid import UUID
+from typing import Optional
 
 students:dict = {
     # "id":int , 
@@ -9,12 +10,12 @@ students:dict = {
     "Height":float
     }
 
-# students_db:list[dict] = []
 students_db = {}
 
 
 app = FastAPI()
 
+####################### HOME PAGE #######################
 @app.get("/")
 def home():
     if len(students_db.items()) != 0:
@@ -22,6 +23,7 @@ def home():
     # else:
     return "Welcome Please create a resource"
 
+####################### CREATE STUDENT RESOURCE #######################
 @app.post("/create")
 def create_student(
     name:str,
@@ -34,7 +36,6 @@ def create_student(
     if (id in students_db.keys()) :
         id:int = UUID(int=int(len(students_db)+2))
 
-    # students['id'] = id
     students['Name'] = name
     students['Age'] = age
     students['Sex'] = sex
@@ -43,6 +44,7 @@ def create_student(
     students_db[id] = students
     return {"success": True} 
 
+####################### QUERY STUDENT RESOURCE #######################
 @app.get("/get_student/{id}")
 def get_student(
     id:int
@@ -51,6 +53,30 @@ def get_student(
     if students_db.get(student_id):
         return students_db[student_id]
     return f"Student does not exist at id:{id}"
+
+
+####################### UPDATE STUDENT RESOURCE #######################
+@app.put("/update_student/")
+def update_record(
+    id:int,
+    name:str,
+    age:int,
+    sex:str,
+    height:float
+    ):
+    student_id = UUID(int=id)
+    if students_db.get(student_id):
+        students['Name'] = name
+        students['Age'] = age
+        students['Sex'] = sex
+        students['Height'] = height
+        students_db[student_id] = students
+        return {f"Record {id} upadated successfully": students}
+    else:
+        return "Cannot replace an id that does not exist."
+    
+
+####################### DELETE RESOURCE #######################
 
 @app.delete("/delete/{id}")
 def remove_student(
